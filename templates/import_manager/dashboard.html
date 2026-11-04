@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>ENPOS Import Manager</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f1f5f9;
+            padding: 35px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        h1 { color: #183153; }
+        .card {
+            background: #f8fafc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .error { color: #dc2626; }
+        .success { color: #15803d; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 9px;
+            text-align: left;
+        }
+        th { background: #e2e8f0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>ENPOS Import Manager</h1>
+    <p>Importation des tournées Excel</p>
+
+    <div class="card">
+        <h2>1. Upload Excel</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Analyser le fichier</button>
+        </form>
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if result %}
+        <div class="card">
+            <h2>2. Résultat de validation</h2>
+            <p>Fichier : {{ filename }}</p>
+
+            {% if result.errors %}
+                <h3 class="error">Erreurs détectées</h3>
+                {% for err in result.errors %}
+                    <p class="error">• {{ err }}</p>
+                {% endfor %}
+            {% else %}
+                <h3 class="success">Structure Excel valide</h3>
+            {% endif %}
+
+            <h3>Nombre de lignes</h3>
+            <table>
+                <tr>
+                    <th>Feuille</th>
+                    <th>Nombre de lignes</th>
+                </tr>
+                {% for sheet, count in result.counts.items %}
+                    <tr>
+                        <td>{{ sheet }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>
